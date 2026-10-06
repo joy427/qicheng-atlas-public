@@ -1,11 +1,13 @@
-# 企澄 Atlas 公开入口
+# 企澄 Atlas · A股只读镜像
 
-这是企澄 Atlas 的 GitHub Pages 静态入口，目前包含项目介绍及正式公开站点链接，后续可承载不依赖服务端接口的公开数据快照。
+本仓库托管企澄 Atlas 面向中国大陆网络的纯静态只读镜像：
 
-- 不包含主应用源代码。
-- 不包含数据库、环境变量、Token 或导入密钥。
-- 不调用任何私有 API，也不采集访问者信息或自动跳转。
-- 完整功能由正式公开站点提供。
+- GitHub Pages：<https://joy427.github.io/qicheng-atlas-public/>
+- 全球完整版：<https://qicheng-atlas-pages.pages.dev/>（Cloudflare Pages 在中国大陆不可用）
+- 收录 5,572 家 A 股上市公司目录。
+- 当前发布首批 500 家公司的 5,000 条股东关系，后续随数据库导入逐步更新。
 
-正式站点：<https://qicheng-atlas-pages.pages.dev/>
+静态镜像不依赖 Cloudflare API，不要求登录，不包含 TuShare Token、导入密钥、Cloudflare 凭据、私有 API 配置或受限原始数据。
+
+运行 `node scripts/build-static-data.mjs` 可从 `D:\game\qicheng-atlas\data` 重新生成公开数据文件。
 
