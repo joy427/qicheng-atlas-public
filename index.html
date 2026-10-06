@@ -3,55 +3,112 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="企澄 Atlas：公开企业风险、股权、舆情与供应链研究入口。" />
+    <meta name="description" content="企澄 Atlas 中国大陆可访问的 A 股企业信息只读镜像。" />
     <meta name="referrer" content="no-referrer" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; script-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" />
-    <title>企澄 Atlas · 公开入口</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'" />
+    <title>企澄 Atlas · A股只读镜像</title>
     <style>
-      :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; }
+      :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; --ink:#111; --paper:#fffdf0; --blue:#3157ff; --yellow:#ffe500; --mint:#54f2a8; --pink:#ff7ac8; }
       * { box-sizing: border-box; }
-      body { margin: 0; min-height: 100vh; background: #ffe500; color: #111; }
-      main { min-height: 100vh; display: grid; place-items: center; padding: 28px; }
-      article { width: min(920px, 100%); border: 4px solid #111; background: #fffdf0; box-shadow: 14px 14px 0 #111; }
-      header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 22px; border-bottom: 4px solid #111; background: #3157ff; color: #fff; }
-      .brand { font-weight: 950; letter-spacing: -.04em; font-size: clamp(24px, 4vw, 42px); }
-      .tag { border: 3px solid #111; background: #54f2a8; color: #111; padding: 7px 10px; font-size: 12px; font-weight: 900; }
-      .content { padding: clamp(28px, 6vw, 68px); }
-      .eyebrow { margin: 0 0 12px; font: 900 13px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .14em; }
-      h1 { max-width: 720px; margin: 0; font-size: clamp(42px, 8vw, 86px); line-height: .96; letter-spacing: -.065em; }
-      p { max-width: 680px; margin: 24px 0 0; font-size: clamp(17px, 2.2vw, 22px); line-height: 1.65; }
-      .actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
-      a { display: inline-flex; min-height: 52px; align-items: center; border: 3px solid #111; padding: 0 20px; color: #111; font-weight: 950; text-decoration: none; box-shadow: 6px 6px 0 #111; }
-      a.primary { background: #54f2a8; }
-      a.secondary { background: #fff; }
-      a:hover, a:focus-visible { transform: translate(3px, 3px); box-shadow: 3px 3px 0 #111; outline: none; }
-      footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; border-top: 4px solid #111; padding: 15px 22px; font: 800 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
-      @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; background: var(--yellow); color: var(--ink); }
+      button, input { font: inherit; }
+      a { color: inherit; }
+      .shell { width: min(1220px, calc(100% - 28px)); margin: 18px auto 60px; }
+      .box { border: 4px solid var(--ink); background: var(--paper); box-shadow: 10px 10px 0 var(--ink); }
+      header { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:18px 22px; background:var(--blue); color:#fff; border-bottom:4px solid var(--ink); }
+      .brand { font-weight:950; letter-spacing:-.05em; font-size:clamp(26px,4vw,44px); }
+      .status { border:3px solid var(--ink); background:var(--mint); color:var(--ink); padding:8px 11px; font:900 12px/1 ui-monospace,monospace; }
+      .hero { padding:clamp(28px,6vw,70px); }
+      .eyebrow { margin:0 0 12px; font:900 13px/1 ui-monospace,monospace; letter-spacing:.14em; }
+      h1 { max-width:900px; margin:0; font-size:clamp(42px,8vw,92px); line-height:.94; letter-spacing:-.065em; }
+      .lead { max-width:820px; margin:24px 0 0; font-size:clamp(17px,2vw,22px); line-height:1.65; }
+      .stats { display:grid; grid-template-columns:repeat(4,1fr); border-top:4px solid var(--ink); }
+      .stat { padding:18px; border-right:4px solid var(--ink); }
+      .stat:last-child { border-right:0; }
+      .stat strong { display:block; font-size:clamp(24px,4vw,42px); line-height:1; }
+      .stat span { display:block; margin-top:8px; font:800 12px/1.4 ui-monospace,monospace; }
+      .workspace { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(330px,.85fr); gap:22px; margin-top:28px; align-items:start; }
+      .panel { border:4px solid var(--ink); background:var(--paper); box-shadow:8px 8px 0 var(--ink); }
+      .panel-title { padding:15px 18px; border-bottom:4px solid var(--ink); background:var(--pink); font-weight:950; font-size:20px; }
+      .controls { padding:18px; border-bottom:4px solid var(--ink); }
+      .search { width:100%; border:3px solid var(--ink); background:#fff; padding:14px 15px; outline:none; font-weight:800; box-shadow:4px 4px 0 var(--ink); }
+      .search:focus { background:#f2ff9f; }
+      .filters { display:flex; flex-wrap:wrap; gap:9px; margin-top:16px; }
+      .filter { border:3px solid var(--ink); background:#fff; padding:8px 12px; font-weight:900; cursor:pointer; }
+      .filter.active { background:var(--mint); box-shadow:3px 3px 0 var(--ink); }
+      .result-meta { display:flex; justify-content:space-between; gap:12px; padding:13px 18px; border-bottom:3px solid var(--ink); font:800 12px/1.4 ui-monospace,monospace; }
+      .results { max-height:720px; overflow:auto; }
+      .company { display:grid; grid-template-columns:88px 1fr auto; gap:12px; width:100%; padding:15px 18px; border:0; border-bottom:2px solid var(--ink); text-align:left; background:transparent; cursor:pointer; }
+      .company:hover, .company.selected { background:#e7ff72; }
+      .code { font:900 14px/1.4 ui-monospace,monospace; }
+      .name { font-weight:950; }
+      .meta { display:block; color:#444; margin-top:4px; font-size:12px; }
+      .badge { align-self:center; border:2px solid var(--ink); padding:4px 7px; font:900 10px/1 ui-monospace,monospace; background:#fff; }
+      .detail { position:sticky; top:16px; }
+      .detail-body { padding:20px; }
+      .empty { padding:35px 20px; line-height:1.7; color:#555; }
+      .detail h2 { margin:0; font-size:32px; line-height:1.05; letter-spacing:-.04em; }
+      .detail-code { margin-top:8px; font:900 13px/1.5 ui-monospace,monospace; }
+      .facts { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:20px 0; }
+      .fact { border:2px solid var(--ink); padding:10px; background:#fff; }
+      .fact small { display:block; color:#555; font-weight:800; }
+      .fact strong { display:block; margin-top:4px; }
+      table { width:100%; border-collapse:collapse; font-size:13px; }
+      th, td { border:2px solid var(--ink); padding:9px; text-align:left; vertical-align:top; }
+      th { background:var(--mint); }
+      td:last-child, th:last-child { text-align:right; white-space:nowrap; }
+      .notice { border:3px solid var(--ink); background:#f2ff9f; padding:14px; margin-top:16px; line-height:1.55; font-weight:750; }
+      .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+      .action { display:inline-flex; min-height:48px; align-items:center; border:3px solid var(--ink); padding:0 16px; background:#fff; font-weight:950; text-decoration:none; box-shadow:5px 5px 0 var(--ink); }
+      .action.primary { background:var(--mint); }
+      .action:hover { transform:translate(2px,2px); box-shadow:3px 3px 0 var(--ink); }
+      footer { margin-top:30px; border:4px solid var(--ink); background:var(--ink); color:#fff; padding:16px 20px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; font:800 12px/1.5 ui-monospace,monospace; }
+      @media (max-width:820px) { .stats { grid-template-columns:1fr 1fr; } .stat:nth-child(2) { border-right:0; } .stat:nth-child(-n+2) { border-bottom:4px solid var(--ink); } .workspace { grid-template-columns:1fr; } .detail { position:static; } }
+      @media (max-width:520px) { .shell { width:min(100% - 16px,1220px); } header { align-items:flex-start; flex-direction:column; } .company { grid-template-columns:72px 1fr; } .company .badge { display:none; } .facts { grid-template-columns:1fr; } }
+      @media (prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; } }
     </style>
   </head>
   <body>
-    <main>
-      <article>
-        <header>
-          <div class="brand">企澄 ATLAS</div>
-          <div class="tag">PUBLIC ACCESS</div>
-        </header>
-        <section class="content">
-          <p class="eyebrow">A-SHARE · DUE DILIGENCE · RISK GRAPH</p>
-          <h1>把公开证据<br />连成企业图谱。</h1>
-          <p>面向A股公司的工商、股权穿透、司法、舆情、供应商与机构持仓研究入口。公开浏览无需登录；数据写入与人工复核仍由受保护的正式系统处理。</p>
+    <main class="shell">
+      <section class="box">
+        <header><div class="brand">企澄 ATLAS</div><div class="status">大陆访问优先 · STATIC</div></header>
+        <div class="hero">
+          <p class="eyebrow">A-SHARE · OWNERSHIP · READ-ONLY MIRROR</p>
+          <h1>不用 VPN，<br />先把企业看清。</h1>
+          <p class="lead">这是企澄 Atlas 的纯静态只读镜像。企业目录和已发布的股东快照随页面一起托管，不请求 Cloudflare、不要求登录，也不会上传你的搜索内容。</p>
           <div class="actions">
-            <a class="primary" href="https://qicheng-atlas-pages.pages.dev/" rel="noreferrer">进入企澄 Atlas →</a>
-            <a class="secondary" href="https://github.com/joy427/qicheng-atlas-public" rel="noreferrer">查看公开仓库</a>
+            <a class="action primary" href="#directory">开始检索 A 股公司 ↓</a>
+            <a class="action" href="https://qicheng-atlas-pages.pages.dev/" rel="noreferrer">全球完整版（部分网络需 VPN）</a>
           </div>
-          <p style="font-size:13px;margin-top:24px">本页不会自动跳转。若正式站点在你所在的网络或地区不可用，本静态入口仍可正常保留；后续公开数据镜像也将发布在此仓库。</p>
-        </section>
-        <footer>
-          <span>NO TOKENS · NO PRIVATE API CONFIG · NO USER TRACKING</span>
-          <span>© 2026 QICHENG ATLAS</span>
-        </footer>
-      </article>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong id="company-count">—</strong><span>A股上市公司</span></div>
+          <div class="stat"><strong id="covered-count">—</strong><span>已有股东快照公司</span></div>
+          <div class="stat"><strong id="edge-count">—</strong><span>股东关系边</span></div>
+          <div class="stat"><strong>0</strong><span>登录、Token 与跟踪器</span></div>
+        </div>
+      </section>
+      <section class="workspace" id="directory">
+        <div class="panel">
+          <div class="panel-title">01 / A股企业目录</div>
+          <div class="controls">
+            <input class="search" id="search" type="search" placeholder="输入证券代码、简称、公司全称或行业" autocomplete="off" />
+            <div class="filters" aria-label="交易所筛选">
+              <button class="filter active" data-exchange="ALL">全部</button><button class="filter" data-exchange="SSE">上交所</button><button class="filter" data-exchange="SZSE">深交所</button><button class="filter" data-exchange="BSE">北交所</button>
+            </div>
+          </div>
+          <div class="result-meta"><span id="result-count">正在载入…</span><span>最多显示前 100 条</span></div>
+          <div class="results" id="results" aria-live="polite"></div>
+        </div>
+        <aside class="panel detail">
+          <div class="panel-title">02 / 公司快照</div>
+          <div id="detail" class="empty">从左侧选择一家公司，查看基本信息与已进入静态镜像的股东关系。</div>
+        </aside>
+      </section>
+      <footer><span>数据来源：沪深北交易所公开目录、上市公司公开披露与 TuShare 授权数据</span><span id="generated-at">© 2026 QICHENG ATLAS</span></footer>
     </main>
+    <script src="app.js" defer></script>
   </body>
 </html>
 
