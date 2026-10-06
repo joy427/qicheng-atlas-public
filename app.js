@@ -1,4 +1,4 @@
-const state = { companies: [], ownership: new Map(), query: "", exchange: "ALL", selected: null };
+const state = { companies: [], ownership: new Map(), ownershipChunks: new Map(), manifest: null, query: "", exchange: "ALL", selected: null, visible: 100 };
 const $ = (selector) => document.querySelector(selector);
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
 const exchangeLabel = { SSE: "上交所", SZSE: "深交所", BSE: "北交所" };
@@ -12,16 +12,17 @@ function renderResults() {
     return !needle || company.search.includes(needle);
   });
   $("#result-count").textContent = `匹配 ${matches.length.toLocaleString("zh-CN")} 家`;
-  $("#results").innerHTML = matches.slice(0, 100).map((company) => `
+  const rows = matches.slice(0, state.visible).map((company) => `
     <button class="company ${state.selected?.stockCode === company.stockCode ? "selected" : ""}" data-code="${company.stockCode}">
       <span class="code">${company.stockCode}</span>
       <span><span class="name">${escapeHtml(company.securityName)}</span><span class="meta">${escapeHtml(company.industry || company.board || "行业待补充")}</span></span>
       <span class="badge">${exchangeLabel[company.exchange] || company.exchange}</span>
-    </button>`).join("") || '<div class="empty">没有找到匹配的公司。</div>';
+    </button>`).join("");
+  const more = matches.length > state.visible ? `<button class="load-more" data-load-more="true">继续显示（剩余 ${(matches.length - state.visible).toLocaleString("zh-CN")} 家）</button>` : "";
+  $("#results").innerHTML = rows ? rows + more : '<div class="empty">没有找到匹配的公司。</div>';
 }
 
-function renderDetail(company) {
-  const holders = state.ownership.get(company.stockCode) || [];
+function renderDetail(company, holders = []) {
   const holderRows = holders.map((holder, index) => `<tr><td>${index + 1}</td><td>${escapeHtml(holder.name)}</td><td>${escapeHtml(holder.type || "未知")}</td><td>${Number(holder.percent).toFixed(4)}%</td></tr>`).join("");
   $("#detail").className = "detail-body";
   $("#detail").innerHTML = `
@@ -37,24 +38,34 @@ function renderDetail(company) {
     <div class="notice">只读镜像不提供批量尽调提交、人工复核和实时预警。需要这些功能时，可在网络条件允许时使用全球完整版。</div>`;
 }
 
+async function loadOwnership(stockCode) {
+  if (state.ownership.has(stockCode)) return state.ownership.get(stockCode);
+  const chunkIndexes = state.manifest.ownershipIndex[stockCode] || [];
+  const rows = (await Promise.all(chunkIndexes.map(async (index) => {
+    if (!state.ownershipChunks.has(index)) {
+      const name = state.manifest.ownershipChunks[index];
+      const response = await fetch(`data/${name}`);
+      if (!response.ok) throw new Error(`${name} 加载失败`);
+      state.ownershipChunks.set(index, await response.json());
+    }
+    return state.ownershipChunks.get(index);
+  }))).flat().filter((row) => row[0] === stockCode);
+  const holders = rows.map((row) => ({ targetName: row[1], name: row[2], type: row[3], percent: row[4], sourceAsOf: row[5] }));
+  state.ownership.set(stockCode, holders);
+  return holders;
+}
+
 async function boot() {
   try {
     const manifestResponse = await fetch("data/manifest.json");
     if (!manifestResponse.ok) throw new Error("数据清单加载失败");
     const manifest = await manifestResponse.json();
-    const [companyChunks, ownershipChunks] = await Promise.all([
-      Promise.all(manifest.companyChunks.map((name) => fetch(`data/${name}`).then((response) => response.ok ? response.json() : Promise.reject(new Error(`${name} 加载失败`))))),
-      Promise.all(manifest.ownershipChunks.map((name) => fetch(`data/${name}`).then((response) => response.ok ? response.json() : Promise.reject(new Error(`${name} 加载失败`))))),
-    ]);
+    state.manifest = manifest;
+    const companyChunks = await Promise.all(manifest.companyChunks.map((name) => fetch(`data/${name}`).then((response) => response.ok ? response.json() : Promise.reject(new Error(`${name} 加载失败`)))));
     state.companies = companyChunks.flat().map((row) => {
       const [stockCode, securityName, companyFullName, exchange, board, industry, region, listingDate, status] = row;
       return { stockCode, securityName, companyFullName, exchange, board, industry, region, listingDate, status, search: normalize(row.join(" ")) };
     });
-    for (const row of ownershipChunks.flat()) {
-      const [stockCode, targetName, name, type, percent, sourceAsOf] = row;
-      if (!state.ownership.has(stockCode)) state.ownership.set(stockCode, []);
-      state.ownership.get(stockCode).push({ targetName, name, type, percent, sourceAsOf });
-    }
     $("#company-count").textContent = manifest.companyCount.toLocaleString("zh-CN");
     $("#covered-count").textContent = manifest.companiesWithData.toLocaleString("zh-CN");
     $("#edge-count").textContent = manifest.edgeCount.toLocaleString("zh-CN");
@@ -66,19 +77,33 @@ async function boot() {
   }
 }
 
-$("#search").addEventListener("input", (event) => { state.query = event.target.value; renderResults(); });
+$("#search").addEventListener("input", (event) => { state.query = event.target.value; state.visible = 100; renderResults(); });
 document.querySelectorAll(".filter").forEach((button) => button.addEventListener("click", () => {
   document.querySelectorAll(".filter").forEach((item) => item.classList.remove("active"));
   button.classList.add("active");
   state.exchange = button.dataset.exchange;
+  state.visible = 100;
   renderResults();
 }));
-$("#results").addEventListener("click", (event) => {
+$("#results").addEventListener("click", async (event) => {
+  if (event.target.closest("[data-load-more]")) {
+    state.visible += 100;
+    renderResults();
+    return;
+  }
   const button = event.target.closest("[data-code]");
   if (!button) return;
   state.selected = state.companies.find((company) => company.stockCode === button.dataset.code);
   renderResults();
-  renderDetail(state.selected);
+  const selectedCode = state.selected.stockCode;
+  $("#detail").className = "empty";
+  $("#detail").textContent = "正在载入该公司的股东快照…";
+  try {
+    const holders = await loadOwnership(selectedCode);
+    if (state.selected?.stockCode === selectedCode) renderDetail(state.selected, holders);
+  } catch (error) {
+    $("#detail").textContent = `${error.message}。请稍后重试。`;
+  }
   if (window.innerWidth < 821) $("#detail").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 

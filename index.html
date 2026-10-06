@@ -41,6 +41,8 @@
       .results { max-height:720px; overflow:auto; }
       .company { display:grid; grid-template-columns:88px 1fr auto; gap:12px; width:100%; padding:15px 18px; border:0; border-bottom:2px solid var(--ink); text-align:left; background:transparent; cursor:pointer; }
       .company:hover, .company.selected { background:#e7ff72; }
+      .load-more { width:calc(100% - 32px); margin:16px; border:3px solid var(--ink); background:var(--mint); padding:13px; font-weight:950; cursor:pointer; box-shadow:4px 4px 0 var(--ink); }
+      .load-more:hover { transform:translate(2px,2px); box-shadow:2px 2px 0 var(--ink); }
       .code { font:900 14px/1.4 ui-monospace,monospace; }
       .name { font-weight:950; }
       .meta { display:block; color:#444; margin-top:4px; font-size:12px; }
@@ -98,7 +100,7 @@
               <button class="filter active" data-exchange="ALL">全部</button><button class="filter" data-exchange="SSE">上交所</button><button class="filter" data-exchange="SZSE">深交所</button><button class="filter" data-exchange="BSE">北交所</button>
             </div>
           </div>
-          <div class="result-meta"><span id="result-count">正在载入…</span><span>最多显示前 100 条</span></div>
+          <div class="result-meta"><span id="result-count">正在载入…</span><span>每次显示 100 条，可继续加载</span></div>
           <div class="results" id="results" aria-live="polite"></div>
         </div>
         <aside class="panel detail">

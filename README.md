@@ -5,7 +5,7 @@
 - GitHub Pages：<https://joy427.github.io/qicheng-atlas-public/>
 - 全球完整版：<https://qicheng-atlas-pages.pages.dev/>（Cloudflare Pages 在中国大陆不可用）
 - 收录 5,572 家 A 股上市公司目录。
-- 当前发布首批 500 家公司的 5,000 条股东关系，后续随数据库导入逐步更新。
+- 发布 5,542 家公司的 61,080 条股东关系；选择公司时按需加载对应数据分片。
 
 静态镜像不依赖 Cloudflare API，不要求登录，不包含 TuShare Token、导入密钥、Cloudflare 凭据、私有 API 配置或受限原始数据。
 
