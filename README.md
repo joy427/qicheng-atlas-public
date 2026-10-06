@@ -7,5 +7,5 @@
 - 不调用任何私有 API，也不采集访问者信息或自动跳转。
 - 完整功能由正式公开站点提供。
 
-正式站点：<https://qicheng-atlas.lorna-sintbd.chatgpt.site/>
+正式站点：<https://qicheng-atlas-pages.pages.dev/>
 
